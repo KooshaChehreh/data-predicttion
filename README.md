@@ -16,6 +16,7 @@ Through these methods, we aim to provide a robust analytical approach that infor
 
 The repository is organized as follows:
 - `lab1/`: Source code for analysis, including Python scripts and modules.
+- `lab2/`: Source code for analysis, including Python scripts and modules.
 - `requirements.txt`: Python dependencies required for reproducing the analysis environment.
 - `.gitignore`: Specifies files and directories to be ignored by version control.
 - `README.md`: Provides an overview and instructions for navigating this repository.
