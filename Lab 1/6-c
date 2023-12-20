@@ -1,0 +1,53 @@
+from datetime import datetime
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from pymongo import MongoClient
+
+# Set up MongoDB connection
+client = MongoClient("mongodb://ictts:Ict4SM22!@bigdatadb.polito.it:27017/carsharing?ssl=true&authSource=carsharing&tlsAllowInvalidCertificates=true")
+
+# Get the database
+db = client['carsharing']
+start_date = datetime(2017, 11, 1)
+end_date = datetime(2018, 1, 31)
+pipeline = [
+    {
+        "$match": {
+            "city": "Torino",
+            "init_date": {
+                "$gte": start_date,
+                "$lte": end_date
+            }
+        }
+    },
+    {
+        "$group": {
+            "_id": {
+                "origin": "$init_address",
+                "destination": "$final_address"
+            },
+            "count": {"$sum": 1}
+        }
+    }
+]
+
+# Run the aggregation
+results = db["PermanentBookings"].aggregate(pipeline)
+
+# Prepare the results for the O-D matrix
+data = []
+for result in results:
+    data.append([result['_id']['origin'], result['_id']['destination'], result['count']])
+
+# Create a DataFrame from the results
+df = pd.DataFrame(data, columns=['Origin', 'Destination', 'Count'])
+
+# Pivot the DataFrame to create the O-D matrix
+od_matrix = df.pivot(index='Origin', columns='Destination', values='Count')
+
+# # Replace NaN values with 0
+# od_matrix = od_matrix.fillna(0)
+
+# Save the O-D matrix to an Text file
+od_matrix.to_csv('od_matrix.csv', index=True)
